@@ -9,6 +9,8 @@ public class LifeCounter : Singleton<LifeCounter>
     [SerializeField, Tooltip("Ui count text")]
     private Text _countText;
 
+    public bool IsFinish => _lifeCount == 0;
+
     private void Awake()
     {
         _countText.text = _lifeCount.ToString();
@@ -17,6 +19,12 @@ public class LifeCounter : Singleton<LifeCounter>
     public void RemoveLife()
     {
         _lifeCount--;
+        _countText.text = _lifeCount.ToString();
+    }
+
+    public void ResetLife()
+    {
+        _lifeCount = 100;
         _countText.text = _lifeCount.ToString();
     }
 }

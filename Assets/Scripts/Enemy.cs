@@ -17,6 +17,9 @@ public class Enemy : MonoBehaviour
         {
             LifeCounter.Instance.RemoveLife();
             Destroy(gameObject);
+            
+            if(LifeCounter.Instance.IsFinish)
+                GameController.Instance.LoseGame();
         }
         if (collision.collider.CompareTag("Player"))
         {
