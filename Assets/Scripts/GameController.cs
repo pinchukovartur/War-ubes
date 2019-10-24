@@ -1,18 +1,18 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GameController : Singleton<GameController>
 {
     public State CurrentState = State.Play;
-    
+
     public void LoseGame()
     {
         if(CurrentState == State.Lose)
             return;
 
         CurrentState = State.Lose;
-        EnemyBase.Instance.StopSpawn();
         EnemyBase.Instance.DestroyEnemies();
         FailWindow.Instance.SetScore(ScoreCounter.Instance.Score);
         FailWindow.Instance.AnimationController.Show();
@@ -29,7 +29,6 @@ public class GameController : Singleton<GameController>
         ScoreCounter.Instance.ResetScore();
         LifeCounter.Instance.ResetLife();
         
-        EnemyBase.Instance.StartSpawn();
         FailWindow.Instance.AnimationController.Hide();
     }
     

@@ -1,72 +1,91 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyBase : Singleton<EnemyBase>
 {
-   [SerializeField]
-   private Enemy _enemyPrefab;
+    [SerializeField] private Enemy _enemyPrefab;
 
-   [SerializeField]
-   private Transform _rootForEnemies;
+    [SerializeField] private Transform _rootForEnemies;
 
-   [SerializeField]
-   private float _spawnTime;
+    [SerializeField] private GameObject _targetEnemies;
 
-   [SerializeField]
-   private GameObject _targetEnemies;
+    private List<Enemy> _enemies = new List<Enemy>();
 
-   [SerializeField]
-   private bool _isStopSpawn;
-   
-   private float _currentTime;
-   
-   private List<Enemy> _enemies = new List<Enemy>();
+    private int _enemyCount;
 
-   private void FixedUpdate()
-   {
-      if (IsTimeSpawn())
-      {
-         Spawn();
-      }
-   }
+    private bool _isFinishSpawn;
+    
+    public IEnumerator Start()
+    {
+        while (true)
+        {
+            yield return WaysController.Instance.ShowTimer();
 
-   private bool IsTimeSpawn()
-   {
-      if (_isStopSpawn)
-         return false;
-      
-      _currentTime += Time.deltaTime;
-      if(_currentTime < _spawnTime)
-         return false;
+            yield return StartSpawn();
 
-      _currentTime = 0;
-      return true;
-   }
-   
-   private void Spawn()
-   {
-      var enemy = Instantiate(_enemyPrefab, _rootForEnemies);
-      enemy.SetTarget(_targetEnemies);
-      _enemies.Add(enemy);
-   }
+            while (_enemyCount != 0)
+            {
+                yield return null;
+            }
+            
+            WaysController.Instance.UpgradeWay();
+        }
+    }
 
-   public void StopSpawn()
-   {
-      _isStopSpawn = true;
-   }
+    private IEnumerator StartSpawn()
+    {
+        _isFinishSpawn = false;
+        var delay = WaysController.Instance.CurrentWay.SpawnDelay;
+        var spawnCount = WaysController.Instance.CurrentWay.Count;
 
-   public void DestroyEnemies()
-   {
-      foreach (var enemy in _enemies)
-      {
-         if(enemy != null)
-            Destroy(enemy.gameObject);
-      }
-      _enemies.Clear();
-   }
+        while (spawnCount != 0)
+        {
+            Spawn();
+            yield return new WaitForSeconds(delay);
+            spawnCount--;
+        }
+        _isFinishSpawn = true;
+    }
 
-   public void StartSpawn()
-   {
-      _isStopSpawn = false;
-   }
+    private void Spawn()
+    {
+        var enemyObj = ObjectPoolController.Instance.GetFromPool(ObjectPoolController.ElementType.SimpleEnemy);
+        _enemyCount++;
+        WaysController.Instance.EnemyCountText.text = _enemyCount.ToString();
+        enemyObj.transform.SetParent(_rootForEnemies);
+        enemyObj.transform.position = new Vector3();
+        enemyObj.SetActive(true);
+        
+        var enemy = enemyObj.GetComponent<Enemy>();
+        enemy.SetTarget(_targetEnemies);
+        enemy.OnDestroyAction = RemoveEnemyCount;
+        _enemies.Add(enemy);
+    }
+
+    private void RemoveEnemyCount()
+    {
+        _enemyCount--;
+        WaysController.Instance.EnemyCountText.text = _enemyCount.ToString();
+    }
+
+    public void DestroyEnemies()
+    {
+        foreach (var enemy in _enemies)
+        {
+            ObjectPoolController.Instance.SetToPool(enemy.gameObject, ObjectPoolController.ElementType.SimpleEnemy);
+        }
+
+        _enemies.Clear();
+    }
+
+    private void FixedUpdate()
+    {
+        if(!_isFinishSpawn)
+            return;
+        
+        
+        
+    }
 }

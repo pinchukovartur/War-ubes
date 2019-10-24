@@ -7,7 +7,7 @@ public class CatcherFallen : MonoBehaviour
         if (collision.collider.CompareTag("Enemy"))
         {
             ScoreCounter.Instance.AddScore();
-            Destroy(collision.gameObject);
+            ObjectPoolController.Instance.SetToPool(collision.gameObject, ObjectPoolController.ElementType.SimpleEnemy);
         }
         
         if (collision.collider.CompareTag("Player"))
@@ -21,7 +21,7 @@ public class CatcherFallen : MonoBehaviour
         if (collision.collider.CompareTag("Enemy"))
         {
             ScoreCounter.Instance.AddScore();
-            Destroy(collision.gameObject);
+            ObjectPoolController.Instance.SetToPool(collision.gameObject, ObjectPoolController.ElementType.SimpleEnemy);
         }
         
         if (collision.collider.CompareTag("Player"))
