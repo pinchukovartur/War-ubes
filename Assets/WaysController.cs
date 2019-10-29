@@ -73,4 +73,10 @@ public class WaysController : Singleton<WaysController>
     {
         Simple
     }
+
+    public void ResetWays()
+    {
+        _currentWayIndex = 0;
+        _wayNumberText.text = $"WAVE: {_currentWayIndex + 1}";
+    }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class ObjectPoolController : Singleton<ObjectPoolController>
 {
@@ -11,13 +12,13 @@ public class ObjectPoolController : Singleton<ObjectPoolController>
 
     private void Awake()
     {
-        foreach (var elementSetting in _settings)
+        /*foreach (var elementSetting in _settings)
         {
             for (int i = 0; i < elementSetting.Count; i++)
             {
                 AddNewElementInPool(elementSetting.Type, elementSetting.Prefab);
             }
-        }
+        }*/
     }
 
     private void AddNewElementInPool(ElementType type, GameObject prefab)
@@ -36,20 +37,23 @@ public class ObjectPoolController : Singleton<ObjectPoolController>
 
     public GameObject GetFromPool(ElementType type)
     {
-        if(!_pool.ContainsKey(type))
+        /*if(!_pool.ContainsKey(type))
             throw new ArgumentException();
         
         if(_pool[type].Count == 0)
             AddNewElementInPool(type, _settings.First(a => a.Type == type).Prefab);
+*/
 
-        var result = _pool[type][0];
-        _pool[type].RemoveAt(0);
+        //var result = _pool[type][0];
+
+        var result = Instantiate(_settings[0].Prefab, transform);
+        //_pool[type].RemoveAt(0);
         return result;
     }
     
     public void SetToPool(GameObject enemy, ElementType simpleEnemy)
     {
-        enemy.SetActive(false);
+        /*enemy.SetActive(false);
         enemy.transform.SetParent(transform);
         if (_pool.ContainsKey(simpleEnemy))
         {
@@ -58,7 +62,8 @@ public class ObjectPoolController : Singleton<ObjectPoolController>
         else
         {
             _pool.Add(simpleEnemy, new List<GameObject>() {enemy});
-        }
+        }*/
+        Destroy(enemy);
     }
     
     [Serializable]

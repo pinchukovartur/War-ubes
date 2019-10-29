@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,15 +15,26 @@ public class EnemyBase : Singleton<EnemyBase>
     private int _enemyCount;
 
     private bool _isFinishSpawn;
+
+    public bool StopSpawn { get; set; } = false;
     
-    public IEnumerator Start()
+    public IEnumerator StartEnemyWay()
     {
         while (true)
         {
+            if(StopSpawn)
+                yield break;
+            
             yield return WaysController.Instance.ShowTimer();
 
+            if(StopSpawn)
+                yield break;
+            
             yield return StartSpawn();
 
+            if(StopSpawn)
+                yield break;
+            
             while (_enemyCount != 0)
             {
                 yield return null;
@@ -42,6 +52,9 @@ public class EnemyBase : Singleton<EnemyBase>
 
         while (spawnCount != 0)
         {
+            if(StopSpawn)
+                break;
+            
             Spawn();
             yield return new WaitForSeconds(delay);
             spawnCount--;
@@ -72,20 +85,18 @@ public class EnemyBase : Singleton<EnemyBase>
 
     public void DestroyEnemies()
     {
+        StopAllCoroutines();
+        
         foreach (var enemy in _enemies)
         {
+            if(enemy == null)
+                continue;
+            
             ObjectPoolController.Instance.SetToPool(enemy.gameObject, ObjectPoolController.ElementType.SimpleEnemy);
         }
 
+        _enemyCount = 0;
+        WaysController.Instance.EnemyCountText.text = _enemyCount.ToString();
         _enemies.Clear();
-    }
-
-    private void FixedUpdate()
-    {
-        if(!_isFinishSpawn)
-            return;
-        
-        
-        
     }
 }
